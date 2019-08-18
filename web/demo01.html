@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>骑行路线规划</title>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=kdTzYwgv1aWnR10PgSwnRA5eEoI2m2Lx"></script>
+<style type="text/css">
+body, html,#container {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+var map = new BMap.Map("container");
+var curpoint=null;//当前最新的位置
+var prepoint=null;//前一个点的位置
+var startpoint=null;//起始点位置
+var centerpoint=null;//途经点的位置
+var endpoint=null;//结束点的位置
+var points=new Array();//所有经过的点
+var startmarker=null;
+var endmarker=null;
+
+map.centerAndZoom(new BMap.Point(116.404, 39.915), 14);
+map.enableScrollWheelZoom(true);
+map.addEventListener("rightclick",function(e){
+	curpoint=e.point;
+	console.log(e.point)
+	console.log(e.point.lng + "," + e.point.lat);
+});
+map.addEventListener("click",function(e){
+	console.log(e.point)
+});
+var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true}});
+
+var menu = new BMap.ContextMenu();
+var txtMenuItem = [
+	{
+		text:'放大',
+		callback:function(){map.zoomIn()}
+	},
+	{
+		text:'缩小',
+		callback:function(){map.zoomOut()}
+	},
+	{
+		text:'设置为起点',
+		callback:function(){
+			if(curpoint!=null){
+				if(startmarker!=null){
+					map.removeOverlay(startmarker);
+				}				
+				var pt = new BMap.Point(curpoint.lng, curpoint.lat);
+				var myIcon = new BMap.Icon("./img/start.png", new BMap.Size(32,32));
+				startmarker = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+				map.addOverlay(startmarker);              // 将标注添加到地图中
+				//创建右键菜单
+				var markerMenu=new BMap.ContextMenu();
+				var removeMarker = function(e,ee,marker){
+					map.removeOverlay(marker);
+				}
+				markerMenu.addItem(new BMap.MenuItem('删除',removeMarker.bind(startmarker)));
+				startmarker.addContextMenu(markerMenu);
+				prepoint=curpoint;//记录前一个点的位置
+				startpoint=curpoint;
+			}			
+		}
+	},
+	{
+		text:'设置为途经点',
+		callback:function(){
+			//map.zoomOut()
+			//alert(e.point.lng + "," + e.point.lat);
+			centerpoint=curpoint;//记录途经点的位置
+			var pt = new BMap.Point(curpoint.lng, curpoint.lat);
+			var myIcon = new BMap.Icon("./img/center.png", new BMap.Size(32,32));
+			var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+			map.addOverlay(marker2);              // 将标注添加到地图中
+			//创建右键菜单
+			var markerMenu=new BMap.ContextMenu();
+			var removeMarker = function(e,ee,marker){
+				map.removeOverlay(marker);
+			}
+			markerMenu.addItem(new BMap.MenuItem('删除',removeMarker.bind(marker2)));
+			marker2.addContextMenu(markerMenu);
+			//riding.search(prepoint, centerpoint);
+			prepoint=curpoint;//记录前一个点的位置
+			points.push(curpoint);
+		}
+	},
+	{
+		text:'设置为终点',
+		callback:function(){
+			//map.zoomOut()
+/*			endpoint=curpoint;//记录途经点的位置
+			if(endmarker!=null){
+				map.removeOverlay(endmarker);
+			}
+			var pt = new BMap.Point(curpoint.lng, curpoint.lat);
+			var myIcon = new BMap.Icon("./img/end.png", new BMap.Size(32,32));
+			endmarker = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+			map.addOverlay(endmarker);              // 将标注添加到地图中
+			//创建右键菜单
+			var markerMenu=new BMap.ContextMenu();
+			var removeMarker = function(e,ee,marker){
+				map.removeOverlay(marker);
+			}
+			markerMenu.addItem(new BMap.MenuItem('删除',removeMarker.bind(endmarker)));
+			endmarker.addContextMenu(markerMenu);
+			
+			//riding.search(prepoint, endpoint);
+			prepoint=curpoint;//记录前一个点的位置
+			console.log('points:'+points);
+			console.log('points.length:'+points.length);
+			for (i = 0; i < points.length; i++) {
+				 console.log('points[i].lng:'+points[i].lng + ",points[i].lat:" + points[i].lat);
+			}
+			driving.search(startpoint, endpoint,{points});//waypoints表示途经点
+*/			
+			
+			var p1 = new BMap.Point(116.301934,39.977552);
+			//var p2 = new BMap.Point(116.508328,39.919141);
+			//var p3 = new BMap.Point(116.365942,39.996165);
+			//var p4 = new BMap.Point(116.408757,39.995704);
+			var p5 = new BMap.Point(116.36449018427128,40.01583548689777);
+			var p6 = new BMap.Point(116.42355783297195,39.95142883412356);
+			var p7 = new BMap.Point(116.35629763802027,39.83390154777381);
+			driving.search(p1, p7,{waypoints:[p5,p6]});//waypoints表示途经点
+		}
+	},
+	{
+		text:'清除规划线路',
+		callback:function(){
+			map.clearOverlays();
+		}
+	}
+];
+for(var i=0; i < txtMenuItem.length; i++){
+	menu.addItem(new BMap.MenuItem(txtMenuItem[i].text,txtMenuItem[i].callback,100));
+}
+map.addContextMenu(menu);
+
+
+var riding = new BMap.RidingRoute(map, { 
+    renderOptions: { 
+        map: map, 
+        autoViewport: true 
+    }
+});
+//var start = new BMap.Point(116.310791, 40.003419);
+//var end = new BMap.Point(116.386419, 40.003519);
+//riding.search(start, end);
+</script>
+</body>
+</html>
