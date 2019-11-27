@@ -103,6 +103,7 @@ var drawingManager = new BMapLib.DrawingManager(map, {
     polygonOptions: styleOptions, //多边形的样式
     rectangleOptions: styleOptions //矩形的样式
 });
+
 //添加鼠标绘制工具监听事件，用于获取绘制结果
 drawingManager.addEventListener('overlaycomplete', overlaycomplete);
 function clearAll() {
