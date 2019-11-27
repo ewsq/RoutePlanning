@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+        #allmap{width:100%;height:500px;}
+    </style>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=kdTzYwgv1aWnR10PgSwnRA5eEoI2m2Lx"></script>
+    <script type="text/javascript" src="./kml/5A.js"></script>
+    <title>从多个点删除指定点</title>
+    <style type="text/css">
+        body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    </style>
+</head>
+<body>
+<div id="allmap"></div>
+<!--input type="button" onclick="deletePoint()" value="删除id=1"/-->
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    var point = new BMap.Point(113.602801,22.371726);
+    map.centerAndZoom(point, 15);
+    map.disableDoubleClickZoom(true);
+    map.enableScrollWheelZoom(true);
+    map.enableDragging();
+    // 编写自定义函数,创建标注
+    function addMarker(point,label){
+        var marker = new BMap.Marker(point);
+        map.addOverlay(marker);
+        marker.setLabel(label);
+        var opts = {
+            width : 200,     // 信息窗口宽度
+            height: 100,     // 信息窗口高度
+            title : "海底捞王府井店" , // 信息窗口标题
+            enableMessage:true,//设置允许信息窗发送短息
+            message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
+        }
+        var infoWindow = new BMap.InfoWindow("地址：北京市东城区王府井大街88号乐天银泰百货八层", opts);  // 创建信息窗口对象
+        marker.addEventListener("click", function(){
+            map.openInfoWindow(infoWindow,point); //开启信息窗口
+        });
+        marker.addEventListener("rightclick",function(e){
+            var curpoint=e.point;
+            console.log(e.point)
+            console.log(e.point.lng + "," + e.point.lat);
+        });
+    }
+    for (var i = 0; i < data.length; i++) {
+        var name=data[i].name;
+        console.log('name['+i+']:'+name);
+        var lng=data[i].points[0].x;
+        var lat=data[i].points[0].y;
+        console.log('lng['+i+']:'+lng+' lat['+i+']:'+lat);
+        var point = new BMap.Point(lat,lng);
+        var label = new BMap.Label(name,{offset:new BMap.Size(20,-10)});
+        addMarker(point,label);
+    }
+    function deletePoint(){
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length -1; i++){
+            if(allOverlay[i].getLabel().content == "我是id=1"){
+                map.removeOverlay(allOverlay[i]);
+                return false;
+            }
+        }
+    }
+</script>
